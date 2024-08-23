@@ -1,0 +1,18 @@
+header {
+    $head-bg : #2e2e4d;  
+    $head-txt: #62d6f7;  
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 45px;
+    background-color: $head-bg;
+    border-bottom: 1px solid #444464;  
+
+    h1 {
+        font-size: 24px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        color: $head-txt;
+        font-weight: 900;
+    }
+}

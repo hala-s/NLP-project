@@ -1,0 +1,13 @@
+footer {
+    $light-bg: #2e2e4d;  
+    $dark-color: #62d6f7; 
+
+    padding: 1em;
+    background-color: $light-bg;
+    border-top: 1px solid $dark-color;
+
+    p {
+        color: $dark-color;
+        text-align: center;
+    }
+}
