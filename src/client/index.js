@@ -3,10 +3,10 @@ import './styles/base.scss';
 import './styles/footer.scss';
 import './styles/form.scss';
 import './styles/header.scss';
-import { handleFormSubmit } from "./js/formHandler";
+import { submitFormHandler } from "./js/formHandler.js";
 
 document
   .getElementById("url-form")
-  .addEventListener("submit", handleFormSubmit);
+  .addEventListener("submit", submitFormHandler);
 
-export { handleFormSubmit };
+export { submitFormHandler };

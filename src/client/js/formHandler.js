@@ -1,77 +1,72 @@
-import axios from "axios"
-import { isValidURL } from "./URLChecker.js"
+import axios from "axios";
+import { isValidURL } from "./URLChecker.js";
 
-const validateURLInput = (urlValue) => {
-    const feedbackSection = document.querySelector(".feedback-wrapper");
+const validateURL = (url) => {
+    const feedbackWrapper = document.querySelector(".feedback-wrapper");
+    feedbackWrapper.innerHTML = "";
 
-    const isURLValid = isValidURL(urlValue);
-    if (!isURLValid) {
-        feedbackSection.innerHTML = "<p class='feedback-error'>Please enter a valid URL.</p>";
+    if (!isValidURL(url)) {
+        feedbackWrapper.innerHTML = "<p class='feedback-error'>Please enter a valid URL.</p>";
         return false;
     }
     return true;
 };
 
-const setLoaderVisibility = (isVisible) => {
-    const loadingSpinner = document.querySelector(".loader")
-    loadingSpinner.style.visibility = isVisible ? "visible" : "hidden";
-}
+const toggleLoader = (show) => {
+    const loader = document.querySelector(".loader");
+    loader.style.visibility = show ? "visible" : "hidden";
+};
 
-const displayErrorMessage = (isVisible, message) => {
-    const errorSection = document.querySelector(".error-wrapper");
-    errorSection.style.display = isVisible ? "block" : "none";
-    errorSection.innerHTML = `<p class='error-message'>${message}</p>`;
-}
+const showError = (show, message = "") => {
+    const errorWrapper = document.querySelector(".error-wrapper");
+    errorWrapper.style.display = show ? "block" : "none";
+    errorWrapper.innerHTML = show ? `<p class='error-message'>${message}</p>` : "";
+};
 
-const displayResults = (responseData) => {
-    const resultContainer = document.getElementById("result");
-    if(!responseData) {
-        displayErrorMessage(
-            true,
-            "An unexpected internal error occurred. Please try again later."
-        )
+const updateResults = (data) => {
+    const resultSection = document.getElementById("result");
+
+    if (!data) {
+        showError(true, "An unexpected internal error occurred. Please try again later.");
         return;
     }
 
-    if(responseData?.error) {
-        displayErrorMessage(true,responseData.erroe);
+    if (data.error) {
+        showError(true, data.error);
         return;
     }
 
-    resultContainer.innerHTML = `
-    <p class="result-part">Sentiment Score: <span>${responseData.score_tag}</span></p>
-    <p class="result-part">Agreement Level: <span>${responseData.agreement}</span></p>
-    <p class="result-part">Subjectivity Level: <span>${responseData.subjectivity}</span></p>
-    <p class="result-part">Confidence Level: <span>${responseData.confidence}</span></p>
-    <p class="result-part">Irony Detected: <span>${responseData.irony}</span></p>
-    `
-}
+    resultSection.innerHTML = `
+        <p class="result-part">Sentiment Score: <span>${data.score_tag}</span></p>
+        <p class="result-part">Agreement Level: <span>${data.agreement}</span></p>
+        <p class="result-part">Subjectivity Level: <span>${data.subjectivity}</span></p>
+        <p class="result-part">Confidence Level: <span>${data.confidence}</span></p>
+        <p class="result-part">Irony Detected: <span>${data.irony}</span></p>
+    `;
+};
 
-const handleFormSubmit = async (event) => {
+const submitFormHandler = async (event) => {
     event.preventDefault();
     const urlInput = document.querySelector("#url-form input");
-    const feedbackSection = document.querySelector(".feedback-wrapper")
-    feedbackSection.innerHTML = "";
-    displayErrorMessage(false, "");
+    const feedbackWrapper = document.querySelector(".feedback-wrapper");
 
-    const isURLValid = validateURLInput(urlInput.value);
-    if(!isURLValid) {
-        return
-    }
-    setLoaderVisibility(true);
+    showError(false);
+    if (!validateURL(urlInput.value)) return;
+
+    toggleLoader(true);
+
     try {
-        const response = await axios.fetch("http://localhost:8000/", {
-            url: urlInput.value
-        })
-        displayResults(response.data);
-        feedbackSection.innerHTML=`
-        <p class='feedback-success'>The URL was successfully analyzed! Check the results below.</p>
-        `
-    }catch(error) {
-        displayErrorMessage(true, "There was an error processing your request. Please try again later.");
+        const response = await axios.post("http://localhost:8000/", { url: urlInput.value });
+        updateResults(response.data);
+
+        feedbackWrapper.innerHTML = `
+            <p class='feedback-success'>The URL was successfully analyzed! Check the results below.</p>
+        `;
+    } catch (error) {
+        showError(true, "There was an error processing your request. Please try again later.");
+    } finally {
+        toggleLoader(false);
     }
-    finally {
-        setLoaderVisibility(false);
-    }
-}
-export {handleFormSubmit}
+};
+
+export { submitFormHandler };
